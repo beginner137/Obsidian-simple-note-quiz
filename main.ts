@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import QuizModal from './card-modal';
+import QuizModal from './quiz-modal';
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -17,10 +17,13 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('checkmark', 'Note Quiz', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			console.log('Hello you!');
 			new Notice('This is a notice!');
+			new QuizModal(this.app, (result) => {
+				new Notice(`Hello, ${result}!`);
+			}).open();
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -30,8 +33,8 @@ export default class MyPlugin extends Plugin {
 		statusBarItemEl.setText('Status Bar Text');
 
 		this.addCommand({
-			id: 'test-file',
-			name: 'test file',
+			id: 'quiz-current-note',
+			name: 'Start quiz on current note',
 			callback: () => {
 				new QuizModal(this.app, (result) => {
 					new Notice(`Hello, ${result}!`);
