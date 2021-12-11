@@ -18,6 +18,7 @@
     ]
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "quiz-modal.tsx"
   ]
 }

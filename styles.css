@@ -9,17 +9,16 @@
 }
 
 .show-answer-btn {
-    font-size: 20px;
+    font-size: 28px;
     color: var(--quiz-color-primary-1);
     background-color: var(--quiz-color-contrast-1);
+    flex-grow: 1;
     opacity: 0.8;
     margin: 0;
 }
 
 .quiz__container__question__container {
     color: var(--quiz-color-primary-1);
-    border-top: 1px solid var(--background-modifier-border);
-
 }
 
 .quiz__container__answer__container {
@@ -36,6 +35,9 @@
 }
 
 .quiz__container__checkmark__container button{
-    font-size: 50px;
-    background-color: transparent !important;
+    font-size: 28px;
+    color: var(--quiz-color-primary-1);
+    flex-grow: 1;
+    background-color: var(--quiz-color-contrast-1);
+    border-radius: 15px;
 }
