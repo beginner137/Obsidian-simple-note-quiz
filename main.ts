@@ -171,7 +171,7 @@ class SampleModal extends Modal {
 		}
 		fileText = lines.join("\n");
 		this.app.vault.modify(note, fileText);
-		return cards[0][0];
+		return cards[0][1];
 	}
 
 	onClose() {
