@@ -20,11 +20,11 @@ export function ReactCard(props: { cards: Card[], app: any }) {
     // // add class for container
     app.modalEl.addClass("quiz__container");
 
-
+    // invoke only once
     React.useEffect(() => {
         const containerEl = app.modalEl;
         const controller = new AbortController;
-        // create question area
+        // create question container
         questionContainer = containerEl.createEl("div", { cls: "quiz__container__question__container" });
         showAnswerButton = containerEl.createEl("button", { text: "Show Answer", cls: "show-answer-btn" });
         showAnswerButton.addEventListener("click", () => {
