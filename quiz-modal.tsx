@@ -3,10 +3,13 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
 
+// let noteLines: string[];
+
 export default class QuizModal extends Modal {
     result: string;
     onSubmit: (result: string) => void;
-    lines: string[];
+    noteLines: string[];
+    file: TFile;
 
     constructor(app: App, onSubmit: (result: string) => void) {
         super(app);
@@ -16,8 +19,14 @@ export default class QuizModal extends Modal {
     async onOpen() {
         const file = this.app.workspace.getActiveFile();
         const cards = await this.prepareCards(file);
+        const recordResponse = (responses: {}) => {
+            console.log(responses);
+            // let fileText = this.noteLines.join("\n");
+            // this.app.vault.modify(file, fileText);
+        };
+
         ReactDOM.render(
-            <ReactCard cards={cards} app={this} />, this.modalEl
+            <ReactCard cards={cards} app={this} recordResponse={recordResponse} />, this.modalEl
         );
 
         // const numOfCards = cards.length;
@@ -74,11 +83,11 @@ export default class QuizModal extends Modal {
     async prepareCards(note: TFile) {
         let fileText: string = await this.app.vault.read(note);
         const lines = fileText.split("\n");
-        this.lines = lines;
+        this.noteLines = lines;
         const cards = [];
-        for (let i = 0; i < this.lines.length; i++) {
+        for (let i = 0; i < lines.length; i++) {
             let answer = "";
-            if (this.lines[i].includes('?')) {
+            if (lines[i].includes('?')) {
                 const question = lines[i];
                 const lineNumber = i;
                 while (i + 1 < lines.length && lines[i + 1].length !== 0) {

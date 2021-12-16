@@ -10,13 +10,15 @@ let yesButton: HTMLElement;
 let noButton: HTMLElement;
 let partialButton: HTMLElement;
 
-export function ReactCard(props: { cards: Card[], app: any }) {
-    const { cards, app } = props;
+// TODO: fix responses.
 
-    const [yesLines, setYesLines] = React.useState([]);
-    const [noLines, setNoLines] = React.useState([]);
+export function ReactCard(props: { cards: Card[], app: any, recordResponse: Function }) {
+    const { cards, app, recordResponse } = props;
     const [showAnswer, setShowAnswer] = React.useState('hide');
     const [currentCardNum, setCurrentCardNum] = React.useState(0);
+    const [lastAnswer, setLastAnswer] = React.useState('');
+    const [lineNumbers, setLineNumbers] = React.useState({ responses: [] });
+
     // // add class for container
     app.modalEl.addClass("quiz__container");
 
@@ -36,35 +38,44 @@ export function ReactCard(props: { cards: Card[], app: any }) {
         yesButton = checkmarkContainer.createEl("button", { text: "✅ Correct", cls: "yes-btn" });
         noButton = checkmarkContainer.createEl("button", { text: "❌ Wrong ", cls: "no-btn" });
         checkmarkContainer.hide();
-        const renderNextCardCleanUp = () => {
+        const renderNextCardCleanUp = (answer) => {
             setShowAnswer('hide');
+            setLastAnswer(answer);
             setCurrentCardNum(old => old + 1);
+            console.log(answer);
             checkmarkContainer.hide();
             answerContainer.empty();
         }
         yesButton.addEventListener("click", () => {
-            setYesLines(old => [...old, cards[currentCardNum].lineNumber]);
-            renderNextCardCleanUp();
+            renderNextCardCleanUp("yes");
         }, { signal: controller.signal });
         noButton.addEventListener("click", () => {
-            setNoLines(old => [...old, cards[currentCardNum].lineNumber]);
-            renderNextCardCleanUp();
+            renderNextCardCleanUp("no");
         }, { signal: controller.signal })
         return () => {
             controller.abort();
         };
-    }, [])
+    }, []);
 
     React.useEffect(() => {
-        console.log(cards);
-        console.log(yesLines, 'yes');
-        console.log(noLines, 'no');
+        const lineNumber = cards[currentCardNum].lineNumber;
+        setLineNumbers(oldState => ({
+            responses: [...oldState.responses, { lineNumber: lineNumber, response: lastAnswer }]
+        }));
+    }, [lastAnswer]);
+
+    React.useEffect(() => {
         if (currentCardNum >= cards.length) {
+            recordResponse(lineNumbers);
             app.close();
             return;
         }
         questionContainer.empty();
         MarkdownRenderer.renderMarkdown(cards[currentCardNum].question, questionContainer, app.app.workspace.getActiveFile(), app);
+
+    }, [currentCardNum]);
+
+    React.useEffect(() => {
         if (showAnswer === 'hide') {
             showAnswerButton.show();
         }
@@ -74,7 +85,7 @@ export function ReactCard(props: { cards: Card[], app: any }) {
             MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainer, app.app.workspace.getActiveFile(), app);
             checkmarkContainer.show();
         }
-    }, [showAnswer, currentCardNum]);
+    }, [showAnswer]);
 
     return (
         <>
