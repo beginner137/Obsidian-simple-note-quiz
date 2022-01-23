@@ -106,7 +106,7 @@ class QuizModal extends Modal {
             this.close();
         } else {
             ReactDOM.render(
-                <QuizPage cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
+                <ReactCard cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
             );
         }
     }
@@ -139,6 +139,8 @@ class QuizModal extends Modal {
                 this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(wrongMark);
             }
         });
+        this.modifyContent(this.noteLines);
+        this.close();
     };
 
 

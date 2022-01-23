@@ -3,7 +3,7 @@ import { MarkdownRenderer } from 'obsidian';
 import { Card } from "quiz-modal";
 import { correctMark, wrongMark } from "strings";
 
-let questionContainer: HTMLElement;
+// let questionContainer: HTMLElement;
 let answerContainer: HTMLElement;
 let showAnswerButton: HTMLElement;
 let checkmarkContainer: HTMLElement;
@@ -11,10 +11,14 @@ let yesButton: HTMLElement;
 let noButton: HTMLElement;
 
 
-export function ReactCard(props: { cards: Card[], app: any, updateCards: Function }) {
-    const { cards, app, updateCards } = props;
-    const [answerVisibility, setAnswerVisibility] = React.useState('hide');
+export function ReactCard(props: { cards: Card[], app: any, recordResponse: Function }) {
+    const { cards, app, recordResponse } = props;
+    const [rightAnswerNum, setRightAnswerNum] = React.useState(0);
+    const [showAnswer, setShowAnswer] = React.useState<boolean>(false);
     const [currentCardNum, setCurrentCardNum] = React.useState(0);
+    const questionContainerRef = React.useRef<HTMLDivElement>(null);
+    const answerContainerRef = React.useRef<HTMLDivElement>(null);
+
     const numOfCards = cards.length;
 
     // // add class for container
@@ -22,74 +26,66 @@ export function ReactCard(props: { cards: Card[], app: any, updateCards: Functio
 
 
     const renderNextCardCleanUp = (answer: string) => {
-        setAnswerVisibility('hide');
-        setCurrentCardNum(old => {
-            cards[old].setResponse(answer);
-            return old + 1
-        });
-        checkmarkContainer.hide();
-        answerContainer.empty();
+        if (answer === 'yes') {
+            setRightAnswerNum(x => x + 1);
+        }
+        cards[currentCardNum].setResponse(answer);
+        setCurrentCardNum(old => old + 1);
+        setShowAnswer(false);
     }
 
     const isEnd = (): boolean => {
         return currentCardNum >= cards.length;
     }
 
-    // invoke only once
-    React.useEffect(() => {
-        const containerEl = app.modalEl;
-        const controller = new AbortController;
-
-        // create question container
-        questionContainer = containerEl.createEl("div", { cls: "quiz__container__question__container" });
-        showAnswerButton = containerEl.createEl("button", { text: "Show Answer", cls: "show-answer-btn" });
-        showAnswerButton.addEventListener("click", () => {
-            setAnswerVisibility('show');
-            showAnswerButton.hide();
-        }, { signal: controller.signal });
-        answerContainer = containerEl.createEl("div", { cls: "quiz__container__answer__container" });
-        checkmarkContainer = containerEl.createEl("div", { cls: "quiz__container__checkmark__container" });
-        yesButton = checkmarkContainer.createEl("button", { text: `Correct ${correctMark}`, cls: "yes-btn" });
-        noButton = checkmarkContainer.createEl("button", { text: `Wrong ${wrongMark}`, cls: "no-btn" });
-        checkmarkContainer.hide();
-
-        yesButton.addEventListener("click", () => {
-            renderNextCardCleanUp("yes");
-        }, { signal: controller.signal });
-        noButton.addEventListener("click", () => {
-            renderNextCardCleanUp("no");
-        }, { signal: controller.signal })
-
-        return () => {
-            controller.abort();
-        };
-    }, []);
-
     // render next card
     React.useEffect(() => {
         if (isEnd()) {
-            updateCards(cards);
             return;
         }
-        questionContainer.empty();
-        MarkdownRenderer.renderMarkdown(cards[currentCardNum].question, questionContainer, app.app.workspace.getActiveFile(), app);
+        questionContainerRef.current.empty();
+        MarkdownRenderer.renderMarkdown(cards[currentCardNum].question, questionContainerRef.current, app.app.workspace.getActiveFile(), app);
 
     }, [currentCardNum]);
 
-    // render answer
-    React.useEffect(() => {
-        if (answerVisibility === 'hide') {
-            showAnswerButton.show();
+    const renderAnswerArea = () => {
+        setShowAnswer(true);
+        answerContainerRef.current.empty();
+        MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainerRef.current, app.app.workspace.getActiveFile(), app);
+    }
+
+    const submitResponse = (response: string) => {
+        if (response === 'yes') {
+            recordResponse(cards);
         } else {
-            answerContainer.empty();
-            MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainer, app.app.workspace.getActiveFile(), app);
-            checkmarkContainer.show();
+            app.close();
         }
-    }, [answerVisibility]);
+    }
+
+    const renderSummary = () => {
+        return <div>
+            <h3>Nice work👏 ! You have finished the quiz and scored {rightAnswerNum} out of {cards.length} questions!</h3>
+            <h3> Would you like to make the marks?</h3>
+            <button onClick={() => submitResponse('yes')}>Yes</button>
+            <button onClick={() => submitResponse('no')}>No</button>
+        </div>
+    }
+
 
     return (
         <>
-            <h3>Current progress: {currentCardNum + 1}/{numOfCards}</h3>
+            {isEnd() ? renderSummary() :
+                <>
+                    <h3>Current progress: {currentCardNum + 1}/{numOfCards}</h3>
+                    <div ref={questionContainerRef} />
+                    {!showAnswer && <button className="show-answer-btn" onClick={() => renderAnswerArea()}>Show Answer</button>}
+                    <div ref={answerContainerRef} />
+                    {showAnswer && <div className="quiz__container__checkmark__container">
+                        <button onClick={() => renderNextCardCleanUp('yes')}>{`Correct ${correctMark}`}</button>
+                        <button onClick={() => renderNextCardCleanUp('no')}>{`Wrong ${wrongMark}`}</button>
+                    </div>}
+                </>
+            }
         </>
     );
 }
