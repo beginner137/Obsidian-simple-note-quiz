@@ -19,10 +19,17 @@ export default class QuizModal extends Modal {
     async onOpen() {
         const file = this.app.workspace.getActiveFile();
         const cards = await this.prepareCards(file);
-        const recordResponse = (responses: {}) => {
-            console.log(responses);
-            // let fileText = this.noteLines.join("\n");
-            // this.app.vault.modify(file, fileText);
+        const recordResponse = (updatedCards: Card[]) => {
+            updatedCards.filter(card => !!card.response).forEach(card => {
+                if (card.response === 'yes') {
+                    this.noteLines[card.lineNumber].concat("✅");
+                } else if (card.response === 'no') {
+                    this.noteLines[card.lineNumber].concat("❌");
+                }
+            });
+
+            let fileText = this.noteLines.join("\n");
+            this.app.vault.modify(file, fileText);
         };
 
         ReactDOM.render(
@@ -102,7 +109,6 @@ export default class QuizModal extends Modal {
         return cards;
     }
 
-
     onClose() {
         const { contentEl } = this;
         ReactDOM.unmountComponentAtNode(contentEl);
@@ -114,10 +120,15 @@ export class Card {
     question: string;
     answer: string;
     lineNumber: number;
+    response: string;
 
     constructor(question: string, answer: string, lineNumber: number) {
         this.question = question;
         this.answer = answer;
         this.lineNumber = lineNumber;
+    }
+
+    setResponse(response: string) {
+        this.response = response;
     }
 }
