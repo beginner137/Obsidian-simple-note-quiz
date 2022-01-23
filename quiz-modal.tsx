@@ -12,7 +12,8 @@ import {
     mode_wrongOnes_title,
     mode_wrongOnes_id,
     mode_clearAll_id,
-    mode_clearAll_title
+    mode_clearAll_title,
+    mode_nothing_id
 } from 'strings';
 
 interface Mode {
@@ -87,7 +88,11 @@ class QuizModal extends Modal {
     async onOpen() {
         const lines = await this.processFileText();
         if (!lines) {
-            new Notice('Cleared all your previous marks!');
+            if (this.mode === mode_clearAll_id) {
+                this.generateNotice(this.mode);
+            } else {
+                this.generateNotice();
+            }
             this.close()
             return;
         }
@@ -95,7 +100,7 @@ class QuizModal extends Modal {
         const cards = this.prepareCards(lines);
 
         if (cards.length === 0) {
-            new Notice('You have nothing to quiz!');
+            this.generateNotice();
             this.close();
         } else {
             ReactDOM.render(
@@ -116,6 +121,14 @@ class QuizModal extends Modal {
         return lines;
     }
 
+    private generateNotice(mode: number = mode_nothing_id) {
+        if (mode === mode_clearAll_id) {
+            return new Notice('Cleared all your previous marks!');
+        } else if (mode === mode_nothing_id) {
+            return new Notice('You have nothing to quiz!');
+        }
+        return;
+    }
 
     recordResponse = (updatedCards: Card[]) => {
         updatedCards.filter(card => !!card.response).forEach(card => {
