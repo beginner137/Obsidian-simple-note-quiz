@@ -1,6 +1,7 @@
 import * as React from "react";
-import { MarkdownRenderer } from 'obsidian'
-import { Card } from "quiz-modal"
+import { MarkdownRenderer } from 'obsidian';
+import { Card } from "quiz-modal";
+import { correctMark, wrongMark } from "strings";
 
 let questionContainer: HTMLElement;
 let answerContainer: HTMLElement;
@@ -44,8 +45,8 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
         }, { signal: controller.signal });
         answerContainer = containerEl.createEl("div", { cls: "quiz__container__answer__container" });
         checkmarkContainer = containerEl.createEl("div", { cls: "quiz__container__checkmark__container" });
-        yesButton = checkmarkContainer.createEl("button", { text: "✅ Correct", cls: "yes-btn" });
-        noButton = checkmarkContainer.createEl("button", { text: "❌ Wrong ", cls: "no-btn" });
+        yesButton = checkmarkContainer.createEl("button", { text: `Correct ${correctMark}`, cls: "yes-btn" });
+        noButton = checkmarkContainer.createEl("button", { text: `Wrong ${wrongMark}`, cls: "no-btn" });
         checkmarkContainer.hide();
 
         yesButton.addEventListener("click", () => {
@@ -88,7 +89,7 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
 
     return (
         <>
-            <h3>{currentCardNum + 1}/{numOfCards}</h3>
+            <h3>Current progress: {currentCardNum + 1}/{numOfCards}</h3>
         </>
     );
 }

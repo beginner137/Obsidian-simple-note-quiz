@@ -1,28 +1,17 @@
-.theme-dark {
-    --quiz-color-primary-1: #F9BF45; 
-    --quiz-color-contrast-1: #4d5139;
-    --quiz-color-contrast-2: #005caf;
-}
-
 .quiz__container {
-    color: var(--quiz-color-primary-1);
 }
 
 .show-answer-btn {
     font-size: 28px;
-    color: var(--quiz-color-primary-1);
-    background-color: var(--quiz-color-contrast-1);
     flex-grow: 1;
     opacity: 0.8;
     margin: 0;
 }
 
 .quiz__container__question__container {
-    color: var(--quiz-color-primary-1);
 }
 
 .quiz__container__answer__container {
-    color: var(--quiz-color-primary-1);
     border-top: 1px solid var(--background-modifier-border);
 
 }
@@ -36,8 +25,6 @@
 
 .quiz__container__checkmark__container button{
     font-size: 28px;
-    color: var(--quiz-color-primary-1);
     flex-grow: 1;
-    background-color: var(--quiz-color-contrast-1);
     border-radius: 15px;
 }

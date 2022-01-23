@@ -1,25 +1,91 @@
-import { App, MarkdownPreviewRenderer, MarkdownRenderChild, MarkdownRenderer, Modal, Setting, TFile } from 'obsidian';
+import { App, MarkdownPreviewRenderer, MarkdownRenderChild, MarkdownRenderer, Modal, Setting, SuggestModal, Notice, TFile } from 'obsidian';
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
-import { correctMark, wrongMark } from 'const';
-import { clear } from 'console';
+import {
+    correctMark,
+    wrongMark,
+    mode_all_title,
+    mode_all_id,
+    mode_unMarked_title,
+    mode_unMarked_id,
+    mode_wrongOnes_title,
+    mode_wrongOnes_id
+} from 'strings';
+
+interface Mode {
+    id: number;
+    title: string;
+    description: string;
+}
+
+const ALL_Modes = [
+    {
+        id: mode_all_id,
+        title: mode_all_title,
+        description: "Review all the questions",
+    },
+    {
+        id: mode_unMarked_id,
+        title: mode_unMarked_title,
+        description: "Only review unmarked questions",
+    },
+    {
+        id: mode_wrongOnes_id,
+        title: mode_wrongOnes_title,
+        description: "Only review the wrong ones",
+    },
+];
 
 
-export default class QuizModal extends Modal {
-    result: string;
-    onSubmit: (result: string) => void;
-    noteLines: string[];
-    file: TFile;
+export default class Suggestions extends SuggestModal<Mode> {
+    app: App;
 
     constructor(app: App, onSubmit: (result: string) => void) {
         super(app);
-        this.onSubmit = onSubmit;
+        this.app = app;
+    }
+
+    // Returns all available suggestions.
+    getSuggestions(query: string): Mode[] {
+        return ALL_Modes.filter((mode) =>
+            mode.title.toLowerCase().includes(query.toLowerCase())
+        );
+    }
+
+    // Renders each suggestion item.
+    renderSuggestion(mode: Mode, el: HTMLElement) {
+        el.createEl("div", { text: mode.title });
+        el.createEl("small", { text: mode.description });
+    }
+
+    // Perform action on the selected suggestion.
+    onChooseSuggestion(mode: Mode, evt: MouseEvent | KeyboardEvent) {
+        return new QuizModal(this.app, mode.id).open();
+    }
+}
+
+
+class QuizModal extends Modal {
+    result: string;
+    noteLines: string[];
+    file: TFile;
+    mode: number;
+
+    constructor(app: App, mode: number) {
+        super(app);
+        this.mode = mode;
     }
 
     async onOpen() {
         const file = this.app.workspace.getActiveFile();
         const cards = await this.prepareCards(file);
+
+        if (cards.length === 0) {
+            new Notice('You have nothing to quiz!');
+            this.close();
+        }
+
         const recordResponse = (updatedCards: Card[]) => {
             updatedCards.filter(card => !!card.response).forEach(card => {
                 if (card.response === 'yes') {
@@ -42,9 +108,10 @@ export default class QuizModal extends Modal {
         let fileText: string = await this.app.vault.read(note);
         const lines = fileText.split("\n");
         const cards = [];
+
         for (let i = 0; i < lines.length; i++) {
             let answer = "";
-            if (lines[i].includes('?')) {
+            if (this.isQuestion(lines[i])) {
                 lines[i] = this.clearMarks(lines[i]);
                 const question = lines[i];
                 const lineNumber = i;
@@ -57,6 +124,18 @@ export default class QuizModal extends Modal {
         }
         this.noteLines = lines;
         return cards;
+    }
+
+    private isQuestion(line: string): boolean {
+        if (!line.includes('?')) return false;
+
+        if (this.mode === mode_unMarked_id) {
+            return !(line.includes(correctMark) || line.includes(wrongMark));
+        } else if (this.mode === mode_wrongOnes_id) {
+            return line.includes(wrongMark);
+        } else {
+            return true;
+        }
     }
 
     private clearMarks(questionString: string) {
