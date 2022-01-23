@@ -10,7 +10,9 @@ import {
     mode_unMarked_title,
     mode_unMarked_id,
     mode_wrongOnes_title,
-    mode_wrongOnes_id
+    mode_wrongOnes_id,
+    mode_clearAll_id,
+    mode_clearAll_title
 } from 'strings';
 
 interface Mode {
@@ -35,6 +37,11 @@ const ALL_Modes = [
         title: mode_wrongOnes_title,
         description: "Only review the wrong ones",
     },
+    {
+        id: mode_clearAll_id,
+        title: mode_clearAll_title,
+        description: 'This will clear all your previous marks',
+    }
 ];
 
 
@@ -78,40 +85,54 @@ class QuizModal extends Modal {
     }
 
     async onOpen() {
-        const file = this.app.workspace.getActiveFile();
-        const cards = await this.prepareCards(file);
+        const lines = await this.processFileText();
+        if (!lines) {
+            new Notice('Cleared all your previous marks!');
+            this.close()
+            return;
+        }
+
+        const cards = this.prepareCards(lines);
 
         if (cards.length === 0) {
             new Notice('You have nothing to quiz!');
             this.close();
+        } else {
+            ReactDOM.render(
+                <ReactCard cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
+            );
         }
-
-        const recordResponse = (updatedCards: Card[]) => {
-            updatedCards.filter(card => !!card.response).forEach(card => {
-                if (card.response === 'yes') {
-                    this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(correctMark);
-                } else if (card.response === 'no') {
-                    this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(wrongMark);
-                }
-            });
-
-            let fileText = this.noteLines.join("\n");
-            this.app.vault.modify(file, fileText);
-        };
-
-        ReactDOM.render(
-            <ReactCard cards={cards} app={this} recordResponse={recordResponse} />, this.modalEl
-        );
     }
 
-    async prepareCards(note: TFile) {
-        let fileText: string = await this.app.vault.read(note);
-        const lines = fileText.split("\n");
-        const cards = [];
+    async processFileText() {
+        const file = this.app.workspace.getActiveFile();
+        let fileText = await this.app.vault.read(file);
+        let lines = fileText.split("\n");
+        if (this.mode === mode_clearAll_id) {
+            lines = lines.map(x => this.isQuestion(x) ? this.clearMarks(x) : x);
+            this.modifyContent(lines, file);
+            return false;
+        }
+        return lines;
+    }
 
+
+    recordResponse = (updatedCards: Card[]) => {
+        updatedCards.filter(card => !!card.response).forEach(card => {
+            if (card.response === 'yes') {
+                this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(correctMark);
+            } else if (card.response === 'no') {
+                this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(wrongMark);
+            }
+        });
+    };
+
+
+    private prepareCards(lines: string[]) {
+        const cards = [];
         for (let i = 0; i < lines.length; i++) {
             let answer = "";
-            if (this.isQuestion(lines[i])) {
+            if (this.isIncluded(lines[i])) {
                 lines[i] = this.clearMarks(lines[i]);
                 const question = lines[i];
                 const lineNumber = i;
@@ -126,8 +147,16 @@ class QuizModal extends Modal {
         return cards;
     }
 
+    private modifyContent(lines: string[], file) {
+        let fileText = lines.join("\n");
+        this.app.vault.modify(file, fileText);
+    }
+
     private isQuestion(line: string): boolean {
-        if (!line.includes('?')) return false;
+        return line.includes('?');
+    }
+    private isIncluded(line: string): boolean {
+        if (!this.isQuestion(line)) return false;
 
         if (this.mode === mode_unMarked_id) {
             return !(line.includes(correctMark) || line.includes(wrongMark));
