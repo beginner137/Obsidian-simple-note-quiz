@@ -3,6 +3,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
 import { correctMark, wrongMark } from 'const';
+import { clear } from 'console';
 
 
 export default class QuizModal extends Modal {
@@ -44,8 +45,7 @@ export default class QuizModal extends Modal {
         for (let i = 0; i < lines.length; i++) {
             let answer = "";
             if (lines[i].includes('?')) {
-                lines[i] = lines[i].replaceAll(correctMark, '');
-                lines[i] = lines[i].replaceAll(wrongMark, '');
+                lines[i] = this.clearMarks(lines[i]);
                 const question = lines[i];
                 const lineNumber = i;
                 while (i + 1 < lines.length && lines[i + 1].length !== 0) {
@@ -57,6 +57,10 @@ export default class QuizModal extends Modal {
         }
         this.noteLines = lines;
         return cards;
+    }
+
+    private clearMarks(questionString: string) {
+        return questionString.replaceAll(correctMark, '').replaceAll(wrongMark, '');
     }
 
     onClose() {

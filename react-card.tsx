@@ -1,5 +1,5 @@
 import * as React from "react";
-import { App, MarkdownRenderChild, MarkdownRenderer, Modal, Setting, TFile, } from 'obsidian'
+import { MarkdownRenderer } from 'obsidian'
 import { Card } from "quiz-modal"
 
 let questionContainer: HTMLElement;
@@ -8,13 +8,7 @@ let showAnswerButton: HTMLElement;
 let checkmarkContainer: HTMLElement;
 let yesButton: HTMLElement;
 let noButton: HTMLElement;
-let partialButton: HTMLElement;
 
-
-interface Response {
-    lineNum: number;
-    response: string;
-}
 
 export function ReactCard(props: { cards: Card[], app: any, recordResponse: Function }) {
     const { cards, app, recordResponse } = props;
@@ -94,7 +88,7 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
 
     return (
         <>
-            <h1>{currentCardNum + 1}/{numOfCards}</h1>
+            <h3>{currentCardNum + 1}/{numOfCards}</h3>
         </>
     );
 }
