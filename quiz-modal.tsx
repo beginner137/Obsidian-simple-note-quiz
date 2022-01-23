@@ -2,8 +2,8 @@ import { App, MarkdownPreviewRenderer, MarkdownRenderChild, MarkdownRenderer, Mo
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
+import { correctMark, wrongMark } from 'const';
 
-// let noteLines: string[];
 
 export default class QuizModal extends Modal {
     result: string;
@@ -22,9 +22,9 @@ export default class QuizModal extends Modal {
         const recordResponse = (updatedCards: Card[]) => {
             updatedCards.filter(card => !!card.response).forEach(card => {
                 if (card.response === 'yes') {
-                    this.noteLines[card.lineNumber].concat("✅");
+                    this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(correctMark);
                 } else if (card.response === 'no') {
-                    this.noteLines[card.lineNumber].concat("❌");
+                    this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(wrongMark);
                 }
             });
 
@@ -35,66 +35,17 @@ export default class QuizModal extends Modal {
         ReactDOM.render(
             <ReactCard cards={cards} app={this} recordResponse={recordResponse} />, this.modalEl
         );
-
-        // const numOfCards = cards.length;
-        // this.currentCardNum = 0;
-
-        // checkmarkContainer.style.display = 'none';
-        // const card: Card = cards[this.currentCardNum];
-        // MarkdownRenderer.renderMarkdown(card.question, questionContainer, file.path, this);
-
-        // showAnswerButton.addEventListener("click", () => {
-        //     MarkdownRenderer.renderMarkdown(card.answer, answerContainer, file.path, this);
-        //     checkmarkContainer.style.display = 'flex';
-        // });
-
-        // yesButton.addEventListener("click", () => {
-        //     this.currentCardNum++;
-        //     if (this.currentCardNum >= numOfCards) {
-        //         this.close();
-        //     } else {
-        //         this.currentCard = cards[this.currentCardNum];
-        //     }
-        // });
-        // questionContainer.innerHTML = card.question;
-
-        // new Setting(containerEl)
-        //     .setName('test')
-        //     .addText((text) => text.onChange((value) => {
-        //         this.result = value
-        //     }));
-
-        // new Setting(containerEl)
-        //     .addButton((btn) =>
-        //         btn
-        //             .setButtonText("Good")
-        //             .setCta()
-        //             .onClick(async () => {
-        //                 // this.close();
-        //                 const file = this.app.workspace.getActiveFile();
-        //                 const test = await this.showNote(file);
-        //                 this.view = containerEl.createDiv("div");
-        //                 console.log(test, 'test markdown');
-        //                 this.view.setAttribute("id", "test-view");
-        //                 MarkdownRenderer.renderMarkdown(test, this.view, file.path, this);
-
-        //                 // this.containerEl.replaceWith(test);
-        //                 // let fileText = this.app.vault.read(file);
-        //                 // console.log(fileText, 'fileText');
-        //                 const fileCachedData = this.app.metadataCache.getFileCache(file);
-        //                 console.log(fileCachedData);
-        //             }));
-
     }
 
     async prepareCards(note: TFile) {
         let fileText: string = await this.app.vault.read(note);
         const lines = fileText.split("\n");
-        this.noteLines = lines;
         const cards = [];
         for (let i = 0; i < lines.length; i++) {
             let answer = "";
             if (lines[i].includes('?')) {
+                lines[i] = lines[i].replaceAll(correctMark, '');
+                lines[i] = lines[i].replaceAll(wrongMark, '');
                 const question = lines[i];
                 const lineNumber = i;
                 while (i + 1 < lines.length && lines[i + 1].length !== 0) {
@@ -102,10 +53,9 @@ export default class QuizModal extends Modal {
                     i++;
                 }
                 cards.push(new Card(question, answer, lineNumber));
-            } else {
-                continue;
             }
         }
+        this.noteLines = lines;
         return cards;
     }
 
