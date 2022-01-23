@@ -11,9 +11,9 @@ let yesButton: HTMLElement;
 let noButton: HTMLElement;
 
 
-export function ReactCard(props: { cards: Card[], app: any, recordResponse: Function }) {
-    const { cards, app, recordResponse } = props;
-    const [showAnswer, setShowAnswer] = React.useState('hide');
+export function ReactCard(props: { cards: Card[], app: any, updateCards: Function }) {
+    const { cards, app, updateCards } = props;
+    const [answerVisibility, setAnswerVisibility] = React.useState('hide');
     const [currentCardNum, setCurrentCardNum] = React.useState(0);
     const numOfCards = cards.length;
 
@@ -22,13 +22,17 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
 
 
     const renderNextCardCleanUp = (answer: string) => {
-        setShowAnswer('hide');
+        setAnswerVisibility('hide');
         setCurrentCardNum(old => {
             cards[old].setResponse(answer);
             return old + 1
         });
         checkmarkContainer.hide();
         answerContainer.empty();
+    }
+
+    const isEnd = (): boolean => {
+        return currentCardNum >= cards.length;
     }
 
     // invoke only once
@@ -40,7 +44,7 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
         questionContainer = containerEl.createEl("div", { cls: "quiz__container__question__container" });
         showAnswerButton = containerEl.createEl("button", { text: "Show Answer", cls: "show-answer-btn" });
         showAnswerButton.addEventListener("click", () => {
-            setShowAnswer('show');
+            setAnswerVisibility('show');
             showAnswerButton.hide();
         }, { signal: controller.signal });
         answerContainer = containerEl.createEl("div", { cls: "quiz__container__answer__container" });
@@ -63,9 +67,8 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
 
     // render next card
     React.useEffect(() => {
-        if (currentCardNum >= cards.length) {
-            recordResponse(cards);
-            app.close();
+        if (isEnd()) {
+            updateCards(cards);
             return;
         }
         questionContainer.empty();
@@ -73,19 +76,16 @@ export function ReactCard(props: { cards: Card[], app: any, recordResponse: Func
 
     }, [currentCardNum]);
 
-
     // render answer
     React.useEffect(() => {
-        if (showAnswer === 'hide') {
+        if (answerVisibility === 'hide') {
             showAnswerButton.show();
-        }
-
-        if (showAnswer === 'show') {
+        } else {
             answerContainer.empty();
             MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainer, app.app.workspace.getActiveFile(), app);
             checkmarkContainer.show();
         }
-    }, [showAnswer]);
+    }, [answerVisibility]);
 
     return (
         <>

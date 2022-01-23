@@ -2,6 +2,7 @@ import { App, MarkdownPreviewRenderer, MarkdownRenderChild, MarkdownRenderer, Mo
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
+import { QuizPage } from "./quiz-page";
 import {
     correctMark,
     wrongMark,
@@ -83,6 +84,7 @@ class QuizModal extends Modal {
     constructor(app: App, mode: number) {
         super(app);
         this.mode = mode;
+        this.file = app.workspace.getActiveFile();
     }
 
     async onOpen() {
@@ -104,18 +106,17 @@ class QuizModal extends Modal {
             this.close();
         } else {
             ReactDOM.render(
-                <ReactCard cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
+                <QuizPage cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
             );
         }
     }
 
     async processFileText() {
-        const file = this.app.workspace.getActiveFile();
-        let fileText = await this.app.vault.read(file);
+        let fileText = await this.app.vault.read(this.file);
         let lines = fileText.split("\n");
         if (this.mode === mode_clearAll_id) {
             lines = lines.map(x => this.isQuestion(x) ? this.clearMarks(x) : x);
-            this.modifyContent(lines, file);
+            this.modifyContent(lines);
             return false;
         }
         return lines;
@@ -130,7 +131,7 @@ class QuizModal extends Modal {
         return;
     }
 
-    recordResponse = (updatedCards: Card[]) => {
+    recordResponse = (updatedCards: Card[]): void => {
         updatedCards.filter(card => !!card.response).forEach(card => {
             if (card.response === 'yes') {
                 this.noteLines[card.lineNumber] = this.noteLines[card.lineNumber].concat(correctMark);
@@ -160,9 +161,9 @@ class QuizModal extends Modal {
         return cards;
     }
 
-    private modifyContent(lines: string[], file) {
+    private modifyContent(lines: string[]) {
         let fileText = lines.join("\n");
-        this.app.vault.modify(file, fileText);
+        this.app.vault.modify(this.file, fileText);
     }
 
     private isQuestion(line: string): boolean {
