@@ -19,7 +19,6 @@ export default class MyPlugin extends Plugin {
 		const ribbonIconEl = this.addRibbonIcon('checkmark', 'Quiz you note', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			new Modal(this.app, this.settings).open();
-			console.log(this.settings);
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');

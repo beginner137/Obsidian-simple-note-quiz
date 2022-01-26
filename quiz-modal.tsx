@@ -93,6 +93,11 @@ class QuizModal extends Modal {
     }
 
     async onOpen() {
+        if (!this.file) {
+            this.generateNotice();
+            this.close();
+            return;
+        }
         const lines = await this.processFileText();
         if (!lines) {
             if (this.mode === mode_clearAll_id) {
