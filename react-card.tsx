@@ -18,7 +18,6 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
     // // add class for container
     plugin.modalEl.addClass("quiz__container");
 
-
     const renderNextCardCleanUp = (answer: string) => {
         answerContainerRef.current.empty();
         if (answer === 'yes') {
@@ -29,7 +28,7 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
         setShowAnswer(false);
     }
 
-    const isEnd = (): boolean => {
+    const isEnd = () => {
         return currentCardNum >= cards.length;
     }
 
@@ -40,28 +39,33 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
         }
         questionContainerRef.current.empty();
         MarkdownRenderer.renderMarkdown(cards[currentCardNum].question, questionContainerRef.current, plugin.app.workspace.getActiveFile(), plugin);
-
+        questionContainerRef.current.findAll('.internal-embed').forEach((ele) => {
+            renderImages(ele);
+        })
     }, [currentCardNum]);
 
     const renderAnswerArea = () => {
         setShowAnswer(true);
-        const file = plugin.app.workspace.getActiveFile();
         answerContainerRef.current.empty();
+        answerContainerRef.current.focus();
         MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainerRef.current, plugin.app.workspace.getActiveFile(), plugin);
         answerContainerRef.current.findAll('.internal-embed').forEach((ele) => {
-            const source = ele.getAttribute("src");
-            const imageSource = getImageSource(source);
-            if (imageSource) {
-                answerContainerRef.current.createEl('img',
-                    { attr: { src: imageSource } },
-                    (img) => {
-                        img.setAttribute("width", "100%");
-                    }
-                );
-                ele.remove();
-            }
-
+            renderImages(ele);
         })
+    }
+
+    const renderImages = (ele: HTMLElement) => {
+        const source = ele.getAttribute("src");
+        const imageSource = getImageSource(source);
+        if (imageSource) {
+            answerContainerRef.current.createEl('img',
+                { attr: { src: imageSource } },
+                (img) => {
+                    img.setAttribute("width", "100%");
+                }
+            );
+            ele.remove();
+        }
     }
 
     const getImageSource = (source: string) => {
@@ -95,6 +99,40 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
         </div>
     }
 
+    const handleCorrectKeyDown = (e) => {
+        const keyArrowRight = 39;
+        const keyArrowLeft = 37;
+        const keyEnter = 13;
+        const bindKeys = [keyArrowRight, keyArrowLeft, keyEnter];
+        const keyCode = e.keyCode;
+        if (!bindKeys.includes(keyCode)) {
+            return;
+        };
+        if (!showAnswer && keyCode === keyEnter) {
+            renderAnswerArea();
+        }
+        if (showAnswer) {
+            if (keyCode === keyArrowRight) {
+                renderNextCardCleanUp('no');
+            }
+            if (keyCode === keyArrowLeft) {
+                renderNextCardCleanUp('yes');
+            }
+        }
+        if (isEnd()) {
+            if (keyCode === keyArrowRight) {
+                submitResponse('no');
+            }
+            if (keyCode === keyArrowLeft) {
+                submitResponse('yes');
+            }
+        }
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('keydown', handleCorrectKeyDown);
+        return () => window.removeEventListener('keydown', handleCorrectKeyDown);
+    }, [handleCorrectKeyDown])
 
     return (
         <div ref={wrapperRef}>
@@ -103,7 +141,7 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
                     <h3>Current progress: {currentCardNum + 1}/{numOfCards}</h3>
                     <div ref={questionContainerRef} />
                     {!showAnswer && <button className="show-answer-btn" onClick={() => renderAnswerArea()}>Show Answer</button>}
-                    <div ref={answerContainerRef} />
+                    <div ref={answerContainerRef} tabIndex={-1} />
                     {showAnswer && <div className="quiz__container__checkmark__container">
                         <button onClick={() => renderNextCardCleanUp('yes')}>{`Correct ${correctMark}`}</button>
                         <button onClick={() => renderNextCardCleanUp('no')}>{`Wrong ${wrongMark}`}</button>
