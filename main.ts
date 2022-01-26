@@ -2,11 +2,11 @@ import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } 
 import Modal from './quiz-modal';
 
 interface MyPluginSettings {
-	mySetting: string;
+	questionMarkSetting: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+	questionMarkSetting: '?'
 }
 
 export default class MyPlugin extends Plugin {
@@ -63,12 +63,22 @@ class SampleSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Question mark')
-			.setDesc('The plugin will recognize the line with the mark as question')
+			.setDesc('The plugin will recognize lines with the mark as questions')
 			.addText(text => text
 				.setValue('?')
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.questionMarkSetting = value;
 					await this.plugin.saveSettings();
-				}));
+				}))
+			.addExtraButton((button) => {
+				button
+					.setIcon("reset")
+					.setTooltip("Reset default")
+					.onClick(async () => {
+						this.plugin.settings.questionMarkSetting = DEFAULT_SETTINGS.questionMarkSetting;
+						await this.plugin.saveSettings();
+						this.display();
+					});
+			})
 	}
 }
