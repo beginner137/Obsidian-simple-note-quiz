@@ -2,7 +2,6 @@ import { App, MarkdownPreviewRenderer, MarkdownRenderChild, MarkdownRenderer, Mo
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ReactCard } from "./react-card";
-import { QuizPage } from "./quiz-page";
 import {
     correctMark,
     wrongMark,
@@ -106,7 +105,7 @@ class QuizModal extends Modal {
             this.close();
         } else {
             ReactDOM.render(
-                <ReactCard cards={cards} app={this} recordResponse={this.recordResponse} />, this.modalEl
+                <ReactCard cards={cards} plugin={this} recordResponse={this.recordResponse} />, this.modalEl
             );
         }
     }

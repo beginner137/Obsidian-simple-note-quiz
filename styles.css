@@ -1,4 +1,6 @@
 .quiz__container {
+    max-height: 80%;
+    overflow: scroll;
 }
 
 .show-answer-btn {
