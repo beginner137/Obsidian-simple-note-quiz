@@ -15,6 +15,7 @@ import {
     mode_clearAll_title,
     mode_nothing_id
 } from 'strings';
+import { MyPluginSettings } from 'main';
 
 interface Mode {
     id: number;
@@ -48,10 +49,12 @@ const ALL_Modes = [
 
 export default class Suggestions extends SuggestModal<Mode> {
     app: App;
+    settings: MyPluginSettings;
 
-    constructor(app: App, onSubmit: (result: string) => void) {
+    constructor(app: App, settings: MyPluginSettings) {
         super(app);
         this.app = app;
+        this.settings = settings;
     }
 
     // Returns all available suggestions.
@@ -69,7 +72,7 @@ export default class Suggestions extends SuggestModal<Mode> {
 
     // Perform action on the selected suggestion.
     onChooseSuggestion(mode: Mode, evt: MouseEvent | KeyboardEvent) {
-        return new QuizModal(this.app, mode.id).open();
+        return new QuizModal(this.app, mode.id, this.settings).open();
     }
 }
 
@@ -79,11 +82,14 @@ class QuizModal extends Modal {
     noteLines: string[];
     file: TFile;
     mode: number;
+    settings: MyPluginSettings;
 
-    constructor(app: App, mode: number) {
+
+    constructor(app: App, mode: number, settings: MyPluginSettings) {
         super(app);
         this.mode = mode;
         this.file = app.workspace.getActiveFile();
+        this.settings = settings;
     }
 
     async onOpen() {
@@ -168,7 +174,7 @@ class QuizModal extends Modal {
     }
 
     private isQuestion(line: string): boolean {
-        return line.includes('?');
+        return line.includes(this.settings.questionMarkSetting);
     }
     private isIncluded(line: string): boolean {
         if (!this.isQuestion(line)) return false;

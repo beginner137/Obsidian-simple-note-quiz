@@ -1,7 +1,7 @@
 import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import Modal from './quiz-modal';
 
-interface MyPluginSettings {
+export interface MyPluginSettings {
 	questionMarkSetting: string;
 }
 
@@ -18,7 +18,8 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('checkmark', 'Quiz you note', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Modal(this.app, (result) => { }).open();
+			new Modal(this.app, this.settings).open();
+			console.log(this.settings);
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -28,7 +29,7 @@ export default class MyPlugin extends Plugin {
 			id: 'quiz-current-note',
 			name: 'Start quiz on current note',
 			callback: () => {
-				new Modal(this.app, (result) => { }).open();
+				new Modal(this.app, this.settings).open();
 			}
 		});
 
@@ -65,10 +66,12 @@ class SampleSettingTab extends PluginSettingTab {
 			.setName('Question mark')
 			.setDesc('The plugin will recognize lines with the mark as questions')
 			.addText(text => text
-				.setValue('?')
+				.setValue(this.plugin.settings.questionMarkSetting)
 				.onChange(async (value) => {
-					this.plugin.settings.questionMarkSetting = value;
-					await this.plugin.saveSettings();
+					if (!!value) {
+						this.plugin.settings.questionMarkSetting = value;
+						await this.plugin.saveSettings();
+					}
 				}))
 			.addExtraButton((button) => {
 				button
