@@ -78,7 +78,6 @@ export default class Suggestions extends SuggestModal<Mode> {
 
 
 class QuizModal extends Modal {
-    result: string;
     noteLines: string[];
     file: TFile;
     mode: number;

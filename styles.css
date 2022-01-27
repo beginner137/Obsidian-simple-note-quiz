@@ -4,18 +4,14 @@
 }
 
 .show-answer-btn {
-    font-size: 28px;
+    font-size: 24px;
     flex-grow: 1;
     opacity: 0.8;
     margin: 0;
 }
 
-.quiz__container__question__container {
-}
-
 .quiz__container__answer__container {
     border-top: 1px solid var(--background-modifier-border);
-
 }
 
 .quiz__container__checkmark__container {
@@ -26,7 +22,7 @@
 }
 
 .quiz__container__checkmark__container button{
-    font-size: 28px;
+    font-size: 24px;
     flex-grow: 1;
     border-radius: 15px;
 }

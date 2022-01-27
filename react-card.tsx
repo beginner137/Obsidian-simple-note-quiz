@@ -1,5 +1,5 @@
 import * as React from "react";
-import { MarkdownRenderer, TFile } from 'obsidian';
+import { MarkdownRenderer } from 'obsidian';
 import { Card } from "quiz-modal";
 import { correctMark, wrongMark } from "strings";
 
@@ -99,7 +99,7 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
         </div>
     }
 
-    const handleCorrectKeyDown = (e) => {
+    const handleCorrectKeyDown = (e: KeyboardEvent) => {
         const keyArrowRight = 39;
         const keyArrowLeft = 37;
         const keyEnter = 13;

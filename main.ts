@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import Modal from './quiz-modal';
 
 export interface MyPluginSettings {
@@ -9,14 +9,14 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	questionMarkSetting: '?'
 }
 
-export default class MyPlugin extends Plugin {
+export default class SimpleNoteQuizPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('checkmark', 'Quiz you note', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('checkbox-glyph', 'Quiz you note', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			new Modal(this.app, this.settings).open();
 		});
@@ -33,7 +33,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new SimpleNoteQuizPluginSettingTab(this.app, this));
 	}
 
 	async loadSettings() {
@@ -46,10 +46,10 @@ export default class MyPlugin extends Plugin {
 }
 
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
+	plugin: SimpleNoteQuizPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: SimpleNoteQuizPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
