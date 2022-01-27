@@ -1,65 +1,42 @@
 ## Simple Note Quiz 
 
-This is a plugin that creates a simple quiz on your current note, and make the marks.
+This is a plugin that creates a simple quiz and makes marks on your current note just like the tests you took at school. 
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+## Story
+- I like to write notes in question and answer format. 
+- I believe testing myself is one of the best ways to learn, I want to create a quiz on my current note, but I don't want to make things too complicated. 
+- I want to make marks so that I know which parts I already know and which parts I don't. 
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Changes the default font color to red using `styles.css`.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
-
-### First time developing plugins?
-
-Quick starting guide for new plugin devs:
-
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
-
-### Releasing new releases
-
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-### Adding your plugin to the community plugin list
-
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-### How to use
-
-- Clone this repo.
-- `npm i` or `yarn` to install dependencies
-- `npm run dev` to start compilation in watch mode.
-
-### Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-### Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+## How it works?
+- The plugin parses the note into cards that each contains a question and its answer.
+- If a line has a 'question mark', it will be parsed as question and contents right below it will be parsed as answer. Together they form a card. 
+- The 'question mark' can be customized in settings, the default is '?'
+- Cards are separated by newline. 
 
 
-### API Documentation
+![Screen Shot 2022-01-26 at 21 33 52](https://user-images.githubusercontent.com/35266345/151299517-a60a0ee9-6568-4897-a563-3f2074265dbf.png)
 
-See https://github.com/obsidianmd/obsidian-api
+
+
+## How to use it?
+
+### 1. Click on the icon to start the quiz
+![image](https://user-images.githubusercontent.com/35266345/151298491-1b240cdf-507a-475c-abbf-d1d4488dfc2c.png)
+
+### 2. Choose which questions you want to review or to clear the marks
+![image](https://user-images.githubusercontent.com/35266345/151298547-d7f8a222-a3b1-4bb0-b60c-7641f4ffa384.png)
+
+### 3. Answer the question, then click `Show Answer` or press `Enter` to view the answer
+![image](https://user-images.githubusercontent.com/35266345/151298600-7a32dc90-9343-4979-9ce7-da0cfbcf19c6.png)
+
+### 4. Make the mark yourself by clicking `Correct` or `Wrong`, you can also press `left arrow key <-` or `right arrow key ->`
+![image](https://user-images.githubusercontent.com/35266345/151298648-55f869d4-1be1-4ebd-9978-c6f5be843a70.png)
+
+### 5. Continue the quiz
+![image](https://user-images.githubusercontent.com/35266345/151298679-1268bfd0-dfdf-4b90-9479-c517750cb69e.png)
+
+### 6. See your score and decide if you want to make the marks
+![image](https://user-images.githubusercontent.com/35266345/151298716-1081ddec-319b-4b79-9270-8995559848ef.png)
+
+### 7. The marks tell you which questions you got right/wrong, to clear the marks see step 2, if you start a new quiz the marks will be updated.
+![image](https://user-images.githubusercontent.com/35266345/151298856-45e51220-8352-4cca-9d7c-d594e896573a.png)
