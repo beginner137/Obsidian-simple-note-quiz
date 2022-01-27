@@ -90,7 +90,7 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
     const renderSummary = () => {
 
         return <div>
-            <h3>Nice work👏 ! You got {rightAnswerNum} out of {cards.length} questions right!</h3>
+            <h3>You finished the quiz👏 ! You got {rightAnswerNum} out of {cards.length} questions right!</h3>
             <h3> Would you like to make the marks?</h3>
             <div className="quiz__container__checkmark__container">
                 <button onClick={() => submitResponse('yes')}>Yes</button>
