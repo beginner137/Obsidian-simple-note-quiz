@@ -1,6 +1,11 @@
 .quiz__container {
     max-height: 80%;
-    overflow: scroll;
+    overflow: auto;
+    padding: 2%;
+}
+
+.modal-bg {
+    backdrop-filter: blur(6px) !important;
 }
 
 .show-answer-btn {

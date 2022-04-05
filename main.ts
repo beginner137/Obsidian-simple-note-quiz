@@ -1,16 +1,19 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import Modal from './quiz-modal';
+import { questionSeparatorOptions } from './constants';
 
-export interface MyPluginSettings {
+export interface SimpleNoteQuizPluginSettings {
 	questionMarkSetting: string;
+	questionSeparatorSetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	questionMarkSetting: '?'
+const DEFAULT_SETTINGS: SimpleNoteQuizPluginSettings = {
+	questionMarkSetting: '?',
+	questionSeparatorSetting: questionSeparatorOptions.NEW_LINE
 }
 
 export default class SimpleNoteQuizPlugin extends Plugin {
-	settings: MyPluginSettings;
+	settings: SimpleNoteQuizPluginSettings;
 
 	async onload() {
 		await this.loadSettings();
@@ -58,9 +61,30 @@ class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+		this.createQuestionMarkSetting(containerEl);
+		// containerEl.createEl('h4', { text: 'Settings' });
+		this.createQuestionSeparatorDropdownSetting(containerEl);
 
-		containerEl.createEl('h4', { text: 'Configure marks and hotkeys' });
+	}
 
+	createQuestionSeparatorDropdownSetting(containerEl: HTMLElement): void {
+		new Setting(containerEl)
+			.setName('Question separator')
+			.setDesc('How the plugin separates questions')
+			.addDropdown((dropdown) => {
+				dropdown
+					.addOption(questionSeparatorOptions.NEW_LINE, 'New line')
+					.addOption(questionSeparatorOptions.NEW_BULLET_POINT, 'New unindented bullet point')
+					.setValue(this.plugin.settings.questionSeparatorSetting)
+					.onChange(async (value) => {
+						console.log(value);
+						this.plugin.settings.questionSeparatorSetting = value;
+						await this.plugin.saveSettings();
+					});
+			});
+	}
+
+	createQuestionMarkSetting(containerEl: HTMLElement): void {
 		new Setting(containerEl)
 			.setName('Question mark')
 			.setDesc('The plugin will recognize lines with the mark as questions')
@@ -81,6 +105,6 @@ class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.display();
 					});
-			})
+			});
 	}
 }
