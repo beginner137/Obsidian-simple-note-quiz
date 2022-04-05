@@ -15,7 +15,8 @@ import {
     mode_clearAll_title,
     mode_nothing_id
 } from 'strings';
-import { MyPluginSettings } from 'main';
+import { SimpleNoteQuizPluginSettings } from 'main';
+import { questionSeparatorOptions } from './constants';
 
 interface Mode {
     id: number;
@@ -49,9 +50,9 @@ const ALL_Modes = [
 
 export default class Suggestions extends SuggestModal<Mode> {
     app: App;
-    settings: MyPluginSettings;
+    settings: SimpleNoteQuizPluginSettings;
 
-    constructor(app: App, settings: MyPluginSettings) {
+    constructor(app: App, settings: SimpleNoteQuizPluginSettings) {
         super(app);
         this.app = app;
         this.settings = settings;
@@ -81,10 +82,10 @@ class QuizModal extends Modal {
     noteLines: string[];
     file: TFile;
     mode: number;
-    settings: MyPluginSettings;
+    settings: SimpleNoteQuizPluginSettings;
 
 
-    constructor(app: App, mode: number, settings: MyPluginSettings) {
+    constructor(app: App, mode: number, settings: SimpleNoteQuizPluginSettings) {
         super(app);
         this.mode = mode;
         this.file = app.workspace.getActiveFile();
@@ -161,8 +162,8 @@ class QuizModal extends Modal {
                 lines[i] = this.clearMarks(lines[i]);
                 const question = lines[i];
                 const lineNumber = i;
-                while (i + 1 < lines.length && lines[i + 1].length !== 0) {
-                    answer += lines[i + 1] + "\n";
+                while (i + 1 < lines.length && !this.isQuestionOver(lines[i + 1])) {
+                    answer += lines[i + 1].trim() + "\n";
                     i++;
                 }
                 cards.push(new Card(question, answer, lineNumber));
@@ -170,6 +171,14 @@ class QuizModal extends Modal {
         }
         this.noteLines = lines;
         return cards;
+    }
+
+    private isQuestionOver(line: string) {
+        if (this.settings.questionSeparatorSetting == questionSeparatorOptions.NEW_LINE) {
+            return line.length === 0;
+        } else {
+            return line.startsWith('-');
+        }
     }
 
     private modifyContent(lines: string[]) {
@@ -180,6 +189,7 @@ class QuizModal extends Modal {
     private isQuestion(line: string): boolean {
         return line.includes(this.settings.questionMarkSetting);
     }
+
     private isIncluded(line: string): boolean {
         if (!this.isQuestion(line)) return false;
 
