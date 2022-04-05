@@ -20,6 +20,6 @@
   },
   "include": [
     "**/*.ts",
-    "quiz-modal.tsx"
+    "component/quiz-modal.tsx"
   ]
 }

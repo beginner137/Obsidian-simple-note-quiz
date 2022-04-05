@@ -16,7 +16,7 @@ import {
     mode_nothing_id
 } from 'strings';
 import { SimpleNoteQuizPluginSettings } from 'main';
-import { questionSeparatorOptions } from './constants';
+import { questionSeparatorOptions } from '../constants';
 
 interface Mode {
     id: number;
