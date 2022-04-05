@@ -1,6 +1,6 @@
 import * as React from "react";
 import { MarkdownRenderer } from 'obsidian';
-import { Card } from "quiz-modal";
+import { Card } from "./quiz-modal";
 import { correctMark, wrongMark } from "strings";
 
 
