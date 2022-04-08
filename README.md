@@ -1,3 +1,13 @@
+## Release 1.1.0 Notes:
+### added option to use new bullet point as question separator like below
+- question 1?
+    - answer 1
+    - answer 2
+- question 2?
+    - answer 1 
+    - answer 2
+---
+
 ## Simple Note Quiz 
 
 This is a plugin that creates a simple quiz and makes marks on your current note just like the tests you took at school. 
