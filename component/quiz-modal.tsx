@@ -14,9 +14,9 @@ import {
     mode_clearAll_id,
     mode_clearAll_title,
     mode_nothing_id
-} from 'strings';
-import { SimpleNoteQuizPluginSettings } from 'main';
-import { questionSeparatorOptions } from '../constants';
+} from 'config/strings';
+import { SimpleNoteQuizPluginSettings } from '../config/settings';
+import { questionSeparatorOptions } from '../config/constants';
 
 interface Mode {
     id: number;
@@ -115,6 +115,11 @@ class QuizModal extends Modal {
             this.generateNotice();
             this.close();
         } else {
+
+            if (this.settings.randomizeQuestionSetting === true) {
+                this.shuffleCards(cards);
+            }
+
             ReactDOM.render(
                 <ReactCard cards={cards} plugin={this} recordResponse={this.recordResponse} />, this.modalEl
             );
@@ -153,6 +158,14 @@ class QuizModal extends Modal {
         this.close();
     };
 
+    private shuffleCards(array: Array<Card>) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
 
     private prepareCards(lines: string[]) {
         const cards = [];

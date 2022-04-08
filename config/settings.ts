@@ -5,11 +5,13 @@ import SimpleNoteQuizPlugin from 'main';
 export interface SimpleNoteQuizPluginSettings {
     questionMarkSetting: string;
     questionSeparatorSetting: string;
+    randomizeQuestionSetting: boolean;
 }
 
 export const DEFAULT_SETTINGS: SimpleNoteQuizPluginSettings = {
     questionMarkSetting: '?',
-    questionSeparatorSetting: questionSeparatorOptions.NEW_LINE
+    questionSeparatorSetting: questionSeparatorOptions.NEW_LINE,
+    randomizeQuestionSetting: false
 }
 
 export class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
@@ -27,7 +29,23 @@ export class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
         this.createQuestionMarkSetting(containerEl);
         // containerEl.createEl('h4', { text: 'Settings' });
         this.createQuestionSeparatorDropdownSetting(containerEl);
+        this.createRandomizeQuestionSetting(containerEl);
 
+    }
+
+    createRandomizeQuestionSetting(containerEl: HTMLElement): void {
+        new Setting(containerEl)
+            .setName('Randomize questions?')
+            .setDesc('If toggled, the cards will be displayed in random order')
+            .addToggle((toggle) => {
+                toggle
+                    .setValue(this.plugin.settings.randomizeQuestionSetting)
+                    .onChange(async (value) => {
+                        this.plugin.settings.randomizeQuestionSetting = value;
+                        await this.plugin.saveSettings();
+                    });
+
+            });
     }
 
     createQuestionSeparatorDropdownSetting(containerEl: HTMLElement): void {
@@ -40,7 +58,6 @@ export class SimpleNoteQuizPluginSettingTab extends PluginSettingTab {
                     .addOption(questionSeparatorOptions.NEW_BULLET_POINT, 'New unindented bullet point')
                     .setValue(this.plugin.settings.questionSeparatorSetting)
                     .onChange(async (value) => {
-                        console.log(value);
                         this.plugin.settings.questionSeparatorSetting = value;
                         await this.plugin.saveSettings();
                     });
