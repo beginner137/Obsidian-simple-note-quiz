@@ -170,16 +170,22 @@ class QuizModal extends Modal {
     private prepareCards(lines: string[]) {
         const cards = [];
         for (let i = 0; i < lines.length; i++) {
-            let answer = "";
+            let answers = [];
             if (this.isIncluded(lines[i])) {
                 lines[i] = this.clearMarks(lines[i]);
                 const question = lines[i];
                 const lineNumber = i;
+                let minWhiteSpaces = 100;
                 while (i + 1 < lines.length && !this.isQuestionOver(lines[i + 1])) {
-                    answer += lines[i + 1].trim() + "\n";
+                    minWhiteSpaces = Math.min(minWhiteSpaces, lines[i + 1].search(/\S/));
+                    console.log(minWhiteSpaces);
+                    answers.push(lines[i + 1]);
                     i++;
                 }
-                cards.push(new Card(question, answer, lineNumber));
+                if (minWhiteSpaces != 0 && minWhiteSpaces != 100) {
+                    answers = answers.map(x => x.substring(minWhiteSpaces));
+                }
+                cards.push(new Card(question, answers.join("\n") + "\n", lineNumber));
             }
         }
         this.noteLines = lines;
