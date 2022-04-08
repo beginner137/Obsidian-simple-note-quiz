@@ -1,7 +1,7 @@
 import * as React from "react";
 import { MarkdownRenderer } from 'obsidian';
 import { Card } from "./quiz-modal";
-import { correctMark, wrongMark } from "strings";
+import { correctMark, wrongMark } from "config/strings";
 
 
 export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: Function }) {
@@ -46,12 +46,16 @@ export function ReactCard(props: { cards: Card[], plugin: any, recordResponse: F
 
     const renderAnswerArea = () => {
         setShowAnswer(true);
+        if (!answerContainerRef.current) {
+            return;
+        }
         answerContainerRef.current.empty();
         answerContainerRef.current.focus();
         MarkdownRenderer.renderMarkdown(cards[currentCardNum].answer, answerContainerRef.current, plugin.app.workspace.getActiveFile(), plugin);
         answerContainerRef.current.findAll('.internal-embed').forEach((ele) => {
             renderImages(ele);
         })
+
     }
 
     const renderImages = (ele: HTMLElement) => {
